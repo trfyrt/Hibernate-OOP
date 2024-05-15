@@ -75,7 +75,6 @@ public class Main {
                 scan.nextLine();
 
                 Students student = session.get(Students.class, id);
-                session.remove(student);
                 
                 if (student != null){
                     session.delete(student);
@@ -96,9 +95,79 @@ public class Main {
         }        
     }
 
+    public void update() {
+        Scanner scan = new Scanner(System.in);
+
+        Configuration configuration = new Configuration();
+        configuration.configure("hibernate.cfg.xml");
+        configuration.addAnnotatedClass(Students.class);
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        Session session = sessionFactory.openSession();
+
+        // HAPUS (DELETE)
+        session.beginTransaction();
+        
+        while (true) {
+            try {
+                // Minta id
+                System.out.print("\nEnter Student's Id: ");
+                int id = scan.nextInt();
+                scan.nextLine();
+
+                Students student = session.get(Students.class, id);
+                
+                if (student != null){
+                    System.out.println("\nChoose Field to Change:\n1. Name\n2. Age\n3. Major\n4. Any key to exit.");
+                    System.out.print("Input Choice: ");
+                    String pilihan = scan.nextLine();
+
+                    switch (pilihan) {
+                        case "1":
+                        // nama barunya
+                        System.out.print("\nStudent's new name: ");
+                        String name = scan.nextLine();
+                        student.setName(name);
+                            break;
+                        case "2":
+                        // umur barunya
+                        System.out.print("\nStudent's new age: ");
+                        int age = scan.nextInt();
+                        scan.nextLine();
+                        student.setAge(age);
+                            break;
+                        case "3":
+                        // major barunya
+                        System.out.print("\nStudent's new major: ");
+                        String major = scan.nextLine();
+                        student.setMajor(major);
+                            break;
+                    
+                        default:
+                        System.out.println("Bye");
+                            break;
+                    }
+                    session.saveOrUpdate(student);
+                    System.out.println("Student data updated.");
+                }
+                else{
+                    System.out.println("\nStudent with Id " + id + " not found.");
+                }
+
+                session.getTransaction().commit();
+                break;
+
+            } catch (InputMismatchException e) {
+                System.out.println("Please enter valid ID\n");
+                scan.nextLine();
+            }
+            
+        }        
+    }
+
+
     public static void main(String[] args) {   
         Scanner scan = new Scanner(System.in);
-        System.out.println("Choose Action:\n1. Persist/Add data\n2. Delete data");
+        System.out.println("Choose Action:\n1. Persist/Add data\n2. Update data\n3. Delete data");
         System.out.print("Input Choice: ");
         String choice = scan.nextLine();
 
@@ -109,6 +178,9 @@ public class Main {
                 action.save();
                 break;
             case "2":
+                action.update();
+                break;
+            case "3":
                 action.delete();
                 break;
         
