@@ -1,5 +1,6 @@
 package oop;
 
+import java.util.List;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -8,7 +9,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 public class Main {
-
 
     public void save() {
         Scanner scan = new Scanner(System.in);
@@ -104,7 +104,7 @@ public class Main {
         SessionFactory sessionFactory = configuration.buildSessionFactory();
         Session session = sessionFactory.openSession();
 
-        // HAPUS (DELETE)
+        // UPDATE
         session.beginTransaction();
         
         while (true) {
@@ -164,10 +164,44 @@ public class Main {
         }        
     }
 
+    public void select() {
+        Scanner scan = new Scanner(System.in);
+
+        Configuration configuration = new Configuration();
+        configuration.configure("hibernate.cfg.xml");
+        configuration.addAnnotatedClass(Students.class);
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        Session session = sessionFactory.openSession();
+
+        // TAMPILKAN (SELECT)
+        session.beginTransaction();
+        
+            try {
+                List<Students> students = session.createQuery("from Students", Students.class).list();
+
+                if (!students.isEmpty()){
+                    for (Students student : students) {
+                        System.out.println("\n--------------------");
+                        System.out.println("ID: " + student.getId());
+                        System.out.println("Name: " + student.getName());
+                        System.out.println("Age: " + student.getAge());
+                        System.out.println("Major: " + student.getMajor());
+                        System.out.println("--------------------");
+                    }
+                }
+                else{
+                    System.out.println("\nNothing to see here...");
+                }
+            } catch (InputMismatchException e) {
+            }
+            
+        }        
+
+
 
     public static void main(String[] args) {   
         Scanner scan = new Scanner(System.in);
-        System.out.println("Choose Action:\n1. Persist/Add data\n2. Update data\n3. Delete data");
+        System.out.println("Choose Action:\n1. Persist/Add data\n2. Update data\n3. Delete data\n4. Show all data");
         System.out.print("Input Choice: ");
         String choice = scan.nextLine();
 
@@ -183,10 +217,13 @@ public class Main {
             case "3":
                 action.delete();
                 break;
+            case "4":
+                action.select();
+                break;
         
             default:
                 break;
         }
-        
+        scan.close();
     }
 }
